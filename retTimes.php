@@ -1,27 +1,47 @@
 <?php
 
-        ini_set('auto_detect_line_endings',true);
+	ini_set('auto_detect_line_endings',true);
 
-        $fileName = "LOG";
+	$fileName = "LOG";
 
-        $cardnumber = $_POST['CardNumber'];
+	$FirstName;
+	$LastName;
+	$cardnumber = $_POST['CardNumber'];
+	list($f_name, $l_name) = explode(" ", $cardnumber);
 
+	foreach (file("members") as $cardname) {
+		list($first, $last, $cn_name) = explode(" ", $cardname);
 
-        $time;
+		if($f_name == $first && $l_name == $last){
+			$cardnumber = rtrim($cn_name, "\n");
+			$FirstName = $f_name;
+			$LastName = $l_name;
+		}
 
-        foreach (file($fileName) as $name) {
-                list($CardNumber, $Time) = explode(" ", $name);
+	}
 
-                if($CardNumber == $cardnumber){
-                        $time += $Time;
-                }
+	$time;
 
-        }
+	foreach (file($fileName) as $name) {
+		list($cn, $Time) = explode(" ", $name);
 
-        $time /= 60;
-        $time = round($time / 10) * 10;
+		if($cn === $cardnumber){
+			$time += $Time;
+		}
 
-        echo $time . " min";
+	}
+
+	$time /= 60;
+	$time = round($time, 2);
+
+	if($time < 60){
+		echo $FirstName . " " . $LastName . ": " . $time . "min"; 
+	}
+
+	if($time >= 60){
+		$time /= 60;
+		$time = round($time, 2);
+		echo $FirstName . " " . $LastName  . ": " .$time . "hrs";
+	}
 
 ?>
-
