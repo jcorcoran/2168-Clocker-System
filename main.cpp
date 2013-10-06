@@ -6,14 +6,15 @@
 #include <unistd.h>     // UNIX standard function definitions
 #include <fcntl.h>      // File control definitions
 #include <termios.h>    // POSIX terminal control definitions
-#include <iostream>	// Used for writing to console
-#include <fstream>	// Used for writing to a file
+#include <iostream>		// Used for writing to console
+#include <fstream>		// Used for writing to a file
 #include <pthread.h>	// Separate threads library
 #include <unistd.h>
 #include <set>
 #include <sstream>
 #include <map>
 #include <math.h>
+#include "/usr/include/curl/curl.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ void *Clock(void *obj){
 
 ofstream fout;
 int main(int argc, char* argv[]){
+
 	if(argc == 2){
 		checkData = true;
 	}
@@ -90,7 +92,16 @@ int main(int argc, char* argv[]){
 
 			//If its a valid enter do stuff with the card key
 			if(!skipwrite){
-				string CardKey(buffer);
+			
+				stringstream ck;
+
+				int ckBI;
+				for(ckBI = 1; ckBI <=12; ckBI++){
+					ck<<buffer[ckBI];
+				}
+
+				string CardKey = ck.str();
+
 				//cout << CardKey << endl;
 				//Check if this is the users clock in or clock out swipe
 				for (ClockerDataIT=ClockerData.begin(); ClockerDataIT!=ClockerData.end(); ClockerDataIT++){
@@ -120,14 +131,37 @@ int main(int argc, char* argv[]){
 					}
 
 					//Write Data To A File
-					fout.open("/ClockerSystem/LOG",std::ios_base::app);
-					int bufferindex = 1;
+					//fout.open("/ClockerSystem/LOG",std::ios_base::app);
+					//for(bufferindex = 1; bufferindex <=12; bufferindex++){
+					//	fout<<buffer[bufferindex];
+					//}
+					//fout << ' ' << timespent << endl;
+					//fout.close();
+					//cout << "Wrote Data! Clocked Out And Spent " << timespent << endl << endl;
+
+					CURL *curl;
+					CURLcode res;
+
+					std::stringstream s;
+					s << "http://clocker.team2168.org/app.php?";
+					
+					int bufferindex;
 					for(bufferindex = 1; bufferindex <=12; bufferindex++){
-						fout<<buffer[bufferindex];
+						s<<buffer[bufferindex];
 					}
-					fout << ' ' << timespent << endl;
-					fout.close();
-					cout << "Wrote Data! Clocked Out And Spent " << timespent << endl << endl;
+			
+					s << "=" << timespent;
+
+					string clockerURL = s.str();
+					curl = curl_easy_init();
+					if(curl) {
+					    curl_easy_setopt(curl, CURLOPT_URL, clockerURL.c_str());
+					    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+					    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+					    res = curl_easy_perform(curl);
+					    curl_easy_cleanup(curl);
+					}
+					cout << "Uploaded Data \n";
 				}
 
 		}
