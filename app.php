@@ -1,14 +1,13 @@
 <?php
 $data = $_SERVER['QUERY_STRING'];
 
-list($CardNumber, $TimeSpent) = explode('=',$data);
+list($CardNumber, $TimeSpent) = explode('=', $data);
 
 $filename = "LOG";
-$file = $filename;
 
 $current .= $CardNumber . " " . $TimeSpent . "\n";
 
-file_put_contents($file,$current, FILE_APPEND | LOCK_EX);
+file_put_contents($filename, $current, FILE_APPEND | LOCK_EX);
 ?>
 
 <html>
