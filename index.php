@@ -36,7 +36,14 @@
 
 		echo '<td>' . $firstname . '</td>';
 		echo '<td>' . $lastname . '</td>';
-		echo '<td>' . $time . '</td>';	
+
+		if($time < 60){
+			echo '<td>' . $time . " min" . '</td>';	
+		}
+
+		if($time >= 60){
+			echo '<td>' . $time . " hrs" . '</td>';
+		}
 
 		echo '</tr>';
 			
