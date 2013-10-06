@@ -1,59 +1,54 @@
 <?php
 
-	ini_set('auto_detect_line_endings',true);
+	ini_set('auto_detect_line_endings', true);
 
-	$fileName = "LOG";
+	$newline = false;
+	$lcount = 0;
 
-	$FirstName;
-	$LastName;
-	$cardnumber = $_POST['CardNumber'];
-	list($f_name, $l_name) = explode(" ", $cardnumber);
+	echo '<center>';
 
-	foreach (file("members") as $cardname) {
-		list($first, $last, $cn_name) = explode(" ", $cardname);
+	echo '<table border="1">';
+	echo '<tr>';
+	echo '<th>' . "First Name" . '</th>';
+	echo '<th>' . "Last Name" . '</th>';
+	echo '<th>' . "Time Spent" . '</th>';
+	echo '</tr>';						
 
-		if($f_name == $first && $l_name == $last){
-			$cardnumber = rtrim($cn_name, "\n");
-			$FirstName = $f_name;
-			$LastName = $l_name;
+	foreach(file("members") as $membername){
+
+		$time = 0;
+		$cn_public;
+	
+		list($firstname, $lastname, $cardnumber) = explode(" ", $membername);
+		$cn_public = rtrim($cardnumber, "\n");
+
+		foreach(file("LOG") as $data_entry){
+			list($log_cardnumber, $log_time) = explode(" ", $data_entry);
+			if($log_cardnumber === $cn_public){
+				$time += $log_time;
+			}
 		}
 
-	}
-
-	$time;
-
-	foreach (file($fileName) as $name) {
-		list($cn, $Time) = explode(" ", $name);
-
-		if($cn === $cardnumber){
-			$time += $Time;
-		}
-
-	}
-
-	$time /= 60;
-	$time = round($time, 2);
-
-	if($time < 60){
-		echo $FirstName . " " . $LastName . ": " . $time . "min"; 
-	}
-
-	if($time >= 60){
 		$time /= 60;
 		$time = round($time, 2);
-		echo $FirstName . " " . $LastName  . ": " .$time . "hrs";
+			
+		echo '<tr>';
+
+		echo '<td>' . $firstname . '</td>';
+		echo '<td>' . $lastname . '</td>';
+
+		if($time < 60){
+			echo '<td>' . $time . " min" . '</td>';	
+		}
+
+		if($time >= 60){
+			echo '<td>' . $time . " hrs" . '</td>';
+		}
+
+		echo '</tr>';
+			
 	}
+			
+	echo '</center>';
 
 ?>
-
-<html>
-
-        <title>2168 Clocker</title>
-
-        <body>
-                <form name='frmMain' method='post' action="retTimes.php">
-                <input type = "text" name = "CardNumber" value = "Person Full Name">
-                <input type = "submit" name = "CheckTimes" value = "Check Times">
-        </body>
-
-</html>
